@@ -15,11 +15,11 @@
     </developer>
   </developers>
 
-  <scm>
+ <!--  <scm>
     <connection>scm:git:git@github.com:stoicflame/enunciate.git</connection>
     <url>https://github.com/stoicflame/enunciate</url>
     <developerConnection>scm:git:git@github.com:stoicflame/enunciate.git</developerConnection>
-  </scm>
+  </scm> -->
 
   <licenses>
     <license>
@@ -165,7 +165,7 @@
           </execution>
         </executions>
       </plugin>
-      <plugin>
+     <!--  <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
         <executions>
@@ -191,7 +191,7 @@ your path down the rabbit hole.</message>
             </configuration>
           </execution>
         </executions>
-      </plugin>
+      </plugin> -->
     </plugins>
     <pluginManagement>
       <plugins>
@@ -551,28 +551,28 @@ your path down the rabbit hole.</message>
   </dependencyManagement>
 
   <distributionManagement>
-    <snapshotRepository>
-      <id>ossrh</id>
-      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-    </snapshotRepository>
     <repository>
-      <id>ossrh</id>
-      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+      <id>releases</id>
+      <url>http://218.244.151.129:8081/nexus/content/repositories/releases</url>
     </repository>
+    <snapshotRepository>
+      <id>snapshots</id>
+      <url>http://218.244.151.129:8081/nexus/content/repositories/snapshots</url>
+    </snapshotRepository>
   </distributionManagement>
 
   <profiles>
-    <profile>
+   <!--  <profile>
       <id>enunciate-full-tests</id>
       <properties>
         <activate.full.tests>true</activate.full.tests>
       </properties>
-    </profile>
+    </profile> -->
     <profile>
       <id>release</id>
       <build>
         <plugins>
-          <plugin>
+          <!-- <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-enforcer-plugin</artifactId>
             <executions>
@@ -598,7 +598,7 @@ your path down the rabbit hole.</message>
                 </configuration>
               </execution>
             </executions>
-          </plugin>
+          </plugin> -->
           <plugin>
             <groupId>org.sonatype.plugins</groupId>
             <artifactId>nexus-staging-maven-plugin</artifactId>
