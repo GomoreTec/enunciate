@@ -226,7 +226,7 @@
           },
               [/#list]
           "default" : {
-            "description" : "Unexpected error."
+            "description" : ""
           }
         }
       }

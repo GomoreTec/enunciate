@@ -80,6 +80,7 @@
 
           addApiKeyAuthorization();
           addDefApiKeyAuthorization();
+          initPropNavigate();
         },
         onFailure: function(data) {
           log("Unable to Load SwaggerUI");
@@ -123,6 +124,24 @@
         if ('console' in window) {
           console.log.apply(console, arguments);
         }
+      }
+      
+      function initPropNavigate() {
+        	$(".propType").css('cursor', 'pointer');
+        	$(".propType").click(function() {  
+       		var type = $(this).text(); 
+       		console.log(type);
+       		$(this).closest('.description').find('span.strong').each(function() {
+  				var text = $(this).text();
+  				if (text == type + ' {') {
+  					$('html, body').animate({
+  				        scrollTop: $(this).offset().top
+  				    }, 1000);
+  					return false;
+  				}
+  				return true;
+       		});
+        	});
       }
   });
   </script>
