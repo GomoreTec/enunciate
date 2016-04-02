@@ -79,6 +79,7 @@
           });
 
           addApiKeyAuthorization();
+          addDefApiKeyAuthorization();
         },
         onFailure: function(data) {
           log("Unable to Load SwaggerUI");
@@ -89,15 +90,24 @@
         defaultModelRendering: 'schema',
         showRequestHeaders: false
       });
-
+      
       function addApiKeyAuthorization(){
         var key = encodeURIComponent($('#input_apiKey')[0].value);
         if(key && key.trim() != "") {
-            var apiKeyAuth = new SwaggerClient.ApiKeyAuthorization("api_key", key, "query");
+            var apiKeyAuth = new SwaggerClient.ApiKeyAuthorization("api_key", key, "header");
             window.swaggerUi.api.clientAuthorizations.add("api_key", apiKeyAuth);
             log("added key " + key);
         }
       }
+      
+      function addDefApiKeyAuthorization(){
+          var key = 'dad52b5719e3202e32a6619e14d0ccec';
+          if(key && key.trim() != "") {
+              var apiKeyAuth = new SwaggerClient.ApiKeyAuthorization("api_key_ex", key, "header");
+              window.swaggerUi.api.clientAuthorizations.add("api_key_ex", apiKeyAuth);
+              log("added keyex " + key);
+          }
+        }
 
       $('#input_apiKey').change(addApiKeyAuthorization);
 
