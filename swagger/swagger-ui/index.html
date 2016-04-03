@@ -79,7 +79,6 @@
           });
 
           addApiKeyAuthorization();
-          addDefApiKeyAuthorization();
           initPropNavigate();
         },
         onFailure: function(data) {
@@ -100,16 +99,7 @@
             log("added key " + key);
         }
       }
-      
-      function addDefApiKeyAuthorization(){
-          var key = 'dad52b5719e3202e32a6619e14d0ccec';
-          if(key && key.trim() != "") {
-              var apiKeyAuth = new SwaggerClient.ApiKeyAuthorization("api_key_ex", key, "header");
-              window.swaggerUi.api.clientAuthorizations.add("api_key_ex", apiKeyAuth);
-              log("added keyex " + key);
-          }
-        }
-
+     
       $('#input_apiKey').change(addApiKeyAuthorization);
 
       // if you have an apiKey you would like to pre-populate on the page for demonstration purposes...
