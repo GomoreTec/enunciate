@@ -348,7 +348,7 @@ public class PHPJSONClientModule extends BasicGeneratingModule implements ApiFea
    * @return The name of the bundle file.
    */
   protected String getBundleFileName() {
-    return getSlug() + "-php.zip";
+    return getSlug() + "-json-php.zip";
   }
 
   /**
@@ -435,7 +435,7 @@ public class PHPJSONClientModule extends BasicGeneratingModule implements ApiFea
    * @return The name of the generated PHP source file.
    */
   protected String getSourceFileName() {
-    return getSlug() + ".php";
+    return getSlug() + "-json.php";
   }
 
   /**

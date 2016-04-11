@@ -319,7 +319,7 @@ public class PHPXMLClientModule extends BasicGeneratingModule implements ApiFeat
    * @return The name of the bundle file.
    */
   protected String getBundleFileName() {
-    return getSlug() + "-php.zip";
+    return getSlug() + "-xml-php.zip";
   }
 
   /**
@@ -406,7 +406,7 @@ public class PHPXMLClientModule extends BasicGeneratingModule implements ApiFeat
    * @return The name of the generated PHP source file.
    */
   protected String getSourceFileName() {
-    return getSlug() + ".php";
+    return getSlug() + "-xml.php";
   }
 
   /**
