@@ -131,7 +131,7 @@ public class EnunciateContext {
 
     boolean filteredIn = this.includeFilter != null && this.includeFilter.apply(className);
     boolean filteredOut = this.excludeFilter != null && this.excludeFilter.apply(className);
-    return !filteredIn && filteredOut;
+    return !filteredIn || filteredOut;
   }
 
   private FilterBuilder buildFilter(Set<String> includes) {

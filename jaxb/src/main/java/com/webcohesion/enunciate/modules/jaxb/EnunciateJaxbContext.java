@@ -1,5 +1,38 @@
 package com.webcohesion.enunciate.modules.jaxb;
 
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import javax.activation.DataHandler;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.ArrayType;
+import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.MirroredTypeException;
+import javax.lang.model.type.MirroredTypesException;
+import javax.lang.model.type.TypeKind;
+import javax.lang.model.type.TypeMirror;
+import javax.lang.model.type.TypeVariable;
+import javax.lang.model.type.WildcardType;
+import javax.lang.model.util.Elements;
+import javax.lang.model.util.SimpleTypeVisitor6;
+import javax.lang.model.util.Types;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.annotation.XmlNsForm;
+import javax.xml.bind.annotation.XmlRegistry;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlSchemaType;
+import javax.xml.bind.annotation.XmlSeeAlso;
+import javax.xml.bind.annotation.XmlTransient;
+import javax.xml.datatype.XMLGregorianCalendar;
+
 import com.webcohesion.enunciate.EnunciateContext;
 import com.webcohesion.enunciate.EnunciateException;
 import com.webcohesion.enunciate.api.datatype.DataTypeReference;
@@ -14,28 +47,32 @@ import com.webcohesion.enunciate.module.EnunciateModuleContext;
 import com.webcohesion.enunciate.modules.jaxb.api.impl.DataTypeReferenceImpl;
 import com.webcohesion.enunciate.modules.jaxb.api.impl.MediaTypeDescriptorImpl;
 import com.webcohesion.enunciate.modules.jaxb.api.impl.NamespaceImpl;
-import com.webcohesion.enunciate.modules.jaxb.model.*;
+import com.webcohesion.enunciate.modules.jaxb.model.Accessor;
+import com.webcohesion.enunciate.modules.jaxb.model.Attribute;
+import com.webcohesion.enunciate.modules.jaxb.model.ComplexTypeDefinition;
+import com.webcohesion.enunciate.modules.jaxb.model.ElementDeclaration;
+import com.webcohesion.enunciate.modules.jaxb.model.ElementRef;
+import com.webcohesion.enunciate.modules.jaxb.model.EnumTypeDefinition;
+import com.webcohesion.enunciate.modules.jaxb.model.ImplicitAttributeRef;
+import com.webcohesion.enunciate.modules.jaxb.model.ImplicitElementRef;
+import com.webcohesion.enunciate.modules.jaxb.model.ImplicitSchemaAttribute;
+import com.webcohesion.enunciate.modules.jaxb.model.ImplicitSchemaElement;
+import com.webcohesion.enunciate.modules.jaxb.model.ImplicitWrappedElementRef;
+import com.webcohesion.enunciate.modules.jaxb.model.LocalElementDeclaration;
+import com.webcohesion.enunciate.modules.jaxb.model.QNameEnumTypeDefinition;
+import com.webcohesion.enunciate.modules.jaxb.model.Registry;
+import com.webcohesion.enunciate.modules.jaxb.model.RootElementDeclaration;
+import com.webcohesion.enunciate.modules.jaxb.model.Schema;
+import com.webcohesion.enunciate.modules.jaxb.model.SchemaInfo;
+import com.webcohesion.enunciate.modules.jaxb.model.SimpleTypeDefinition;
+import com.webcohesion.enunciate.modules.jaxb.model.TypeDefinition;
+import com.webcohesion.enunciate.modules.jaxb.model.Value;
 import com.webcohesion.enunciate.modules.jaxb.model.adapters.AdapterType;
 import com.webcohesion.enunciate.modules.jaxb.model.types.KnownXmlType;
 import com.webcohesion.enunciate.modules.jaxb.model.types.XmlType;
 import com.webcohesion.enunciate.modules.jaxb.model.types.XmlTypeFactory;
 import com.webcohesion.enunciate.modules.jaxb.model.util.JAXBUtil;
 import com.webcohesion.enunciate.modules.jaxb.model.util.MapType;
-
-import javax.activation.DataHandler;
-import javax.lang.model.element.Element;
-import javax.lang.model.element.ElementKind;
-import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.TypeElement;
-import javax.lang.model.type.*;
-import javax.lang.model.util.Elements;
-import javax.lang.model.util.SimpleTypeVisitor6;
-import javax.lang.model.util.Types;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.annotation.*;
-import javax.xml.datatype.XMLGregorianCalendar;
-import java.sql.Timestamp;
-import java.util.*;
 
 /**
  * @author Ryan Heaton
@@ -828,6 +865,13 @@ public class EnunciateJaxbContext extends EnunciateModuleContext implements Synt
     @Override
     public Void visitDeclared(DeclaredType declaredType, ReferenceContext context) {
       TypeElement declaration = (TypeElement) declaredType.asElement();
+      
+      // we will ignore when XmlTransient present
+      XmlTransient annTransient = declaration.getAnnotation(XmlTransient.class);
+      if (annTransient != null) {
+        return null;
+      }
+      
       if (declaration.getKind() == ElementKind.ENUM) {
         if (!isKnownTypeDefinition(declaration)) {
           add(createTypeDefinition(declaration), context.referenceStack);

@@ -1,5 +1,55 @@
 package com.webcohesion.enunciate.modules.jackson1;
 
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import javax.activation.DataHandler;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.ArrayType;
+import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.MirroredTypeException;
+import javax.lang.model.type.MirroredTypesException;
+import javax.lang.model.type.TypeKind;
+import javax.lang.model.type.TypeMirror;
+import javax.lang.model.type.TypeVariable;
+import javax.lang.model.type.WildcardType;
+import javax.lang.model.util.Elements;
+import javax.lang.model.util.SimpleTypeVisitor6;
+import javax.lang.model.util.Types;
+import javax.xml.bind.JAXBElement;
+import javax.xml.datatype.XMLGregorianCalendar;
+
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.annotate.JsonIgnoreType;
+import org.codehaus.jackson.annotate.JsonSubTypes;
+import org.codehaus.jackson.node.ArrayNode;
+import org.codehaus.jackson.node.BigIntegerNode;
+import org.codehaus.jackson.node.BinaryNode;
+import org.codehaus.jackson.node.BooleanNode;
+import org.codehaus.jackson.node.ContainerNode;
+import org.codehaus.jackson.node.DecimalNode;
+import org.codehaus.jackson.node.DoubleNode;
+import org.codehaus.jackson.node.IntNode;
+import org.codehaus.jackson.node.LongNode;
+import org.codehaus.jackson.node.MissingNode;
+import org.codehaus.jackson.node.NullNode;
+import org.codehaus.jackson.node.NumericNode;
+import org.codehaus.jackson.node.ObjectNode;
+import org.codehaus.jackson.node.POJONode;
+import org.codehaus.jackson.node.TextNode;
+import org.codehaus.jackson.node.ValueNode;
+
 import com.webcohesion.enunciate.EnunciateContext;
 import com.webcohesion.enunciate.EnunciateException;
 import com.webcohesion.enunciate.api.InterfaceDescriptionFile;
@@ -17,29 +67,20 @@ import com.webcohesion.enunciate.modules.jackson1.api.impl.DataTypeReferenceImpl
 import com.webcohesion.enunciate.modules.jackson1.api.impl.EnumDataTypeImpl;
 import com.webcohesion.enunciate.modules.jackson1.api.impl.MediaTypeDescriptorImpl;
 import com.webcohesion.enunciate.modules.jackson1.api.impl.ObjectDataTypeImpl;
-import com.webcohesion.enunciate.modules.jackson1.model.*;
+import com.webcohesion.enunciate.modules.jackson1.model.Accessor;
+import com.webcohesion.enunciate.modules.jackson1.model.EnumTypeDefinition;
+import com.webcohesion.enunciate.modules.jackson1.model.Member;
+import com.webcohesion.enunciate.modules.jackson1.model.ObjectTypeDefinition;
+import com.webcohesion.enunciate.modules.jackson1.model.QNameEnumTypeDefinition;
+import com.webcohesion.enunciate.modules.jackson1.model.SimpleTypeDefinition;
+import com.webcohesion.enunciate.modules.jackson1.model.TypeDefinition;
+import com.webcohesion.enunciate.modules.jackson1.model.Value;
 import com.webcohesion.enunciate.modules.jackson1.model.adapters.AdapterType;
 import com.webcohesion.enunciate.modules.jackson1.model.types.JsonType;
 import com.webcohesion.enunciate.modules.jackson1.model.types.JsonTypeFactory;
 import com.webcohesion.enunciate.modules.jackson1.model.types.KnownJsonType;
 import com.webcohesion.enunciate.modules.jackson1.model.util.JacksonUtil;
 import com.webcohesion.enunciate.modules.jackson1.model.util.MapType;
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.annotate.JsonSubTypes;
-import org.codehaus.jackson.node.*;
-
-import javax.activation.DataHandler;
-import javax.lang.model.element.Element;
-import javax.lang.model.element.ElementKind;
-import javax.lang.model.element.TypeElement;
-import javax.lang.model.type.*;
-import javax.lang.model.util.Elements;
-import javax.lang.model.util.SimpleTypeVisitor6;
-import javax.lang.model.util.Types;
-import javax.xml.bind.JAXBElement;
-import javax.xml.datatype.XMLGregorianCalendar;
-import java.sql.Timestamp;
-import java.util.*;
 
 /**
  * @author Ryan Heaton
@@ -501,6 +542,13 @@ public class EnunciateJackson1Context extends EnunciateModuleContext implements 
     @Override
     public Void visitDeclared(DeclaredType declaredType, ReferenceContext context) {
       TypeElement declaration = (TypeElement) declaredType.asElement();
+      
+      // we will ignore when JsonIgnoreType present
+      JsonIgnoreType annIgnoreType = declaration.getAnnotation(JsonIgnoreType.class);
+      if (annIgnoreType != null) {
+        return null;
+      }
+      
       if (declaration.getKind() == ElementKind.ENUM) {
         if (!isKnownTypeDefinition(declaration)) {
           add(createTypeDefinition(declaration), context.referenceStack);
