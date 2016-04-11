@@ -15,7 +15,7 @@ import java.util.Set;
 /**
  * @author Ryan Heaton
  */
-@SuppressWarnings ( "unchecked" )
+@SuppressWarnings("unchecked")
 public class EnunciateReflectionsScanner extends AbstractScanner {
 
   private final FilterBuilder includeFilter;
@@ -37,8 +37,7 @@ public class EnunciateReflectionsScanner extends AbstractScanner {
       for (String include : includes) {
         if (AntPatternMatcher.isValidPattern(include)) {
           includeFilter = includeFilter.add(new AntPatternInclude(include));
-        }
-        else {
+        } else {
           includeFilter = includeFilter.add(new StringEqualsInclude(include));
         }
       }
@@ -51,8 +50,7 @@ public class EnunciateReflectionsScanner extends AbstractScanner {
       for (String exclude : excludes) {
         if (AntPatternMatcher.isValidPattern(exclude)) {
           excludeFilter = excludeFilter.add(new AntPatternInclude(exclude));
-        }
-        else {
+        } else {
           excludeFilter = excludeFilter.add(new StringEqualsInclude(exclude));
         }
       }
@@ -71,8 +69,7 @@ public class EnunciateReflectionsScanner extends AbstractScanner {
     if (file.getName().endsWith(".java")) {
       getStore().put(file.getRelativePath(), file.getRelativePath());
       return classObject;
-    }
-    else {
+    } else {
       return super.scan(file, classObject);
     }
   }
@@ -85,7 +82,8 @@ public class EnunciateReflectionsScanner extends AbstractScanner {
     for (TypeFilteringModule filteringModule : this.filteringModules) {
       if (filteringModule.acceptType(type, metadata)) {
         accepted = true;
-        //do not break: type filtering modules may need to be aware of types that are not accepted, or that are accepted by other modules.
+        // do not break: type filtering modules may need to be aware of types
+        // that are not accepted, or that are accepted by other modules.
       }
     }
 
@@ -93,15 +91,21 @@ public class EnunciateReflectionsScanner extends AbstractScanner {
 
     boolean filteredIn = this.includeFilter != null && this.includeFilter.apply(className);
     if (filteredIn) {
-      //if it's explicitly included, add it.
+      // if it's explicitly included, add it.
       getStore().put(className, className);
-    }
-    else {
+    } else {
       boolean filteredOut = this.excludeFilter != null && this.excludeFilter.apply(className);
       if (accepted && !filteredOut) {
-        //else if it's accepted and not explicitly excluded, add it.
+        // else if it's accepted and not explicitly excluded, add it.
         getStore().put(className, className);
       }
     }
+
+    // if it's explicitly excluded, remove it
+    boolean filteredOut = this.excludeFilter != null && this.excludeFilter.apply(className);
+    if (filteredOut && getStore().containsKey(className)) {
+      getStore().remove(className, className);
+    }
+
   }
 }
