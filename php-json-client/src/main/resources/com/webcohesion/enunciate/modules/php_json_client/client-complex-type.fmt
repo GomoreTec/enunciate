@@ -136,7 +136,7 @@ class ${simpleNameFor(type)}[#if !type.baseObject] extends \${classnameFor(type.
     [/#if]
     [#if type.value??]
       [#if !isFacetExcluded(type.value)]
-        if ($this->${type.value.clientSimpleName}) {
+        if (isset($this->${type.value.clientSimpleName})) {
             [@toPhpJsonInstance '$a["_value"]' '$this->${type.value.clientSimpleName}' '${classnameFor(type.value)}' '            '/]
         }
       [/#if]
@@ -144,7 +144,7 @@ class ${simpleNameFor(type)}[#if !type.baseObject] extends \${classnameFor(type.
       [#list type.members as member]
         [#if !isFacetExcluded(member)]
           [#if member.collectionType]
-        if ($this->${member.clientSimpleName}) {
+        if (isset($this->${member.clientSimpleName})) {
             $ab = array();
             foreach ($this->${member.clientSimpleName} as $i => $x) {
                 [@toPhpJsonInstance '$ab[$i]' '$x' '${classnameFor(member.collectionItemType)}' '                '/]
@@ -152,7 +152,7 @@ class ${simpleNameFor(type)}[#if !type.baseObject] extends \${classnameFor(type.
             $a['${member.name}'] = $ab;
         }
           [#else]
-        if ($this->${member.clientSimpleName}) {
+        if (isset($this->${member.clientSimpleName})) {
             [@toPhpJsonInstance '$a["${member.name}"]' '$this->${member.clientSimpleName}' '${classnameFor(member)}' '            ' /]
         }
           [/#if]
