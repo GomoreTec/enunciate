@@ -1,0 +1,129 @@
+[#ftl]
+
+[#--template for the client-side complex type.--]
+[#macro writeComplexTypeHeader type]
+  [#-- @ftlvariable name="type" type="com.webcohesion.enunciate.modules.jaxb.model.ComplexTypeDefinition" --]
+  [#assign typeName=nameForTypeDefinition(type)/]
+  
+#ifndef DEF_${typeName}_H
+#define DEF_${typeName}_H
+
+/**
+ * ${type.docComment!"(no documentation provided)"?chop_linebreak?replace("\n", "\n * ")}
+ */
+@interface ${typeName} : [#if ((!type.baseObject) && (type.baseType.typeDefinition??))]${nameForTypeDefinition(type.baseType.typeDefinition)}[#else]Jastor[/#if]
+[#list type.attributes as attribute]
+  [#if !isFacetExcluded(attribute)]
+    [#if !accessorOverridesAnother(attribute)]
+/**
+ * ${(attribute.javaDoc.return!attribute.docValue!"(no documentation provided)")?chop_linebreak?replace("\n", "\n * ")}
+ * [#if attribute.collectionType]@see ${classnameFor(attribute.collectionItemType)}[/#if]
+ */
+@property (nonatomic, copy) ${classnameFor(attribute)} [#if !attribute.accessorType.primitive]*[/#if]${clientSimpleName(attribute)};
+    [/#if]
+  [/#if]
+[/#list]
+[#if type.value??]
+  [#if !isFacetExcluded(type.value)]
+    [#if !accessorOverridesAnother(type.value)]
+/** 
+ * ${(type.value.javaDoc.return!type.value.docValue!"(no documentation provided)")?chop_linebreak?replace("\n", "\n * ")}
+ * [#if type.value.collectionType]@see ${classnameFor(type.value.collectionItemType)}[/#if]
+ */
+@property (nonatomic, copy) ${classnameFor(type.value)} [#if !type.value.accessorType.primitive]*[/#if]${clientSimpleName(type.value)};
+    [/#if]
+  [/#if]
+[#else]
+  [#list type.elements as element]
+    [#if !isFacetExcluded(element)]
+      [#if !accessorOverridesAnother(element)]
+/** 
+ * ${(element.javaDoc.return!element.docValue!"(no documentation provided)")?chop_linebreak?replace("\n", "\n   * ")}
+ * [#if element.collectionType]@see ${classnameFor(element.collectionItemType)}[/#if]
+ * [#if element.accessorType.enum]取值: [#list getEnumVariablesFor(element) as enumValue][#if !isFacetExcluded(enumValue)]${nameForEnumConstant(enumValue)}, [/#if][/#list][/#if]
+ */
+@property (nonatomic, ${memoryAccessTypeFor(element)}) ${classnameFor(element)} [#if !element.accessorType.primitive]*[/#if]${clientSimpleName(element)};
+      [/#if]
+    [/#if]
+  [/#list]
+[/#if]
+[#if type.anyElement??]
+/**
+ * ${(type.anyElement.javaDoc.return!type.anyElement.docValue!"(no documentation provided)")?chop_linebreak?replace("\n", "\n * ")}
+ *
+ * Contains instances of JAXBBasicXMLNode.
+ */
+@property (nonatomic, retain) NSArray *${clientSimpleName(type.anyElement)};
+[/#if]
+[#if type.hasAnyAttribute]
+/**
+ * Other attributes applicable to ${typeName}.
+ *
+ * Contains instances of JAXBBasicXMLNode.
+ [#if type.anyAttributeQNameEnumRef??]
+ *
+ * See ${classnameFor(type.anyAttributeQNameEnumRef)} for an enumeration of known attributes.
+ [/#if]
+ */
+@property (nonatomic, retain) NSArray *otherAttributes;
+[/#if]
+@end /* interface ${typeName} */
+
+#endif
+
+[/#macro]
+
+[#macro writeComplexTypeImpl type]
+  [#assign typeName=nameForTypeDefinition(type)/]
+@implementation ${typeName}
+[#list type.attributes as attribute]
+  [#if !isFacetExcluded(attribute)]
+    [#if !accessorOverridesAnother(attribute)]
+@synthesize ${clientSimpleName(attribute)};
+    [/#if]
+  [/#if]
+[/#list]
+[#if type.value??]
+  [#if !isFacetExcluded(type.vale)]
+    [#if !accessorOverridesAnother(type.value)]
+@synthesize ${clientSimpleName(type.value)};
+    [/#if]
+  [/#if]
+[#else]
+  [#list type.elements as element]
+    [#if !isFacetExcluded(element)]
+      [#if !accessorOverridesAnother(element)]
+@synthesize ${clientSimpleName(element)};
+      [/#if]
+    [/#if]
+  [/#list]
+[/#if]
+[#if type.anyElement??]
+@synthesize ${clientSimpleName(type.anyElement)};
+[/#if]
+[#if type.hasAnyAttribute]
+/**
+ * Other attributes applicable to ${typeName}.
+ *
+ * Contains instances of JAXBBasicXMLNode.
+ */
+- (NSArray *) otherAttributes
+{
+  return _otherAttributes;
+}
+[/#if]
+[#list type.elements as element]
+    [#if !isFacetExcluded(element)]
+      [#if !accessorOverridesAnother(element)]
+      	[#if element.collectionType]
+      	
++ (Class)${clientSimpleName(element)}_class {
+    return [${classnameFor(element.collectionItemType)} class];
+}
+		[/#if]
+      [/#if]
+    [/#if]
+[/#list]
+@end
+
+[/#macro]
