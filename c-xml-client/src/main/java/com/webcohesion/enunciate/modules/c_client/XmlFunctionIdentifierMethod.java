@@ -37,7 +37,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Method used to determine a function identifier for a given XML name/namespace.
+ * Method used to determine a function identifier for a given XML
+ * name/namespace.
  *
  * @author Ryan Heaton
  */
@@ -50,18 +51,22 @@ public class XmlFunctionIdentifierMethod implements TemplateMethodModelEx {
   }
 
   /**
-   * Returns the qname of the element that has the first parameter as the namespace, the second as the element.
+   * Returns the qname of the element that has the first parameter as the
+   * namespace, the second as the element.
    *
-   * @param list The arguments.
+   * @param list
+   *          The arguments.
    * @return The qname.
    */
   public Object exec(List list) throws TemplateModelException {
     if (list.size() < 1) {
-      throw new TemplateModelException("The xmlFunctionIdentifier method must have a qname, type definition, or xml type as a parameter.");
+      throw new TemplateModelException(
+          "The xmlFunctionIdentifier method must have a qname, type definition, or xml type as a parameter.");
     }
 
     TemplateModel from = (TemplateModel) list.get(0);
-    BeansWrapper wrapper = new BeansWrapperBuilder(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS).build();
+    BeansWrapper wrapper = new BeansWrapperBuilder(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS)
+        .build();
     Object unwrapped = wrapper.unwrap(from);
 
     if (unwrapped instanceof Accessor) {
@@ -69,30 +74,28 @@ public class XmlFunctionIdentifierMethod implements TemplateMethodModelEx {
 
       if (accessorType.isInstanceOf(JAXBElement.class.getName())) {
         unwrapped = KnownXmlType.ANY_TYPE.getQname();
-      }
-      else if (unwrapped instanceof Element && ((Element)unwrapped).getRef() != null) {
+      } else if (unwrapped instanceof Element && ((Element) unwrapped).getRef() != null) {
         unwrapped = ((Element) unwrapped).getRef();
-      }
-      else {
+      } else {
         unwrapped = ((Accessor) unwrapped).getBaseType();
       }
     }
 
     if (unwrapped instanceof XmlType) {
-      if (unwrapped instanceof XmlClassType && ((XmlType)unwrapped).isAnonymous()) {
+      if (unwrapped instanceof XmlClassType && ((XmlType) unwrapped).isAnonymous()) {
         unwrapped = ((XmlClassType) unwrapped).getTypeDefinition();
-      }
-      else {
+      } else {
         unwrapped = ((XmlType) unwrapped).getQname();
       }
     }
 
     if (unwrapped instanceof TypeDefinition) {
       if (((TypeDefinition) unwrapped).isAnonymous()) {
-        //if anonymous, we have to come up with a unique (albeit nonstandard) name for the xml type.
-        unwrapped = new QName(((TypeDefinition)unwrapped).getNamespace(), "anonymous" + ((TypeDefinition)unwrapped).getSimpleName());
-      }
-      else {
+        // if anonymous, we have to come up with a unique (albeit nonstandard)
+        // name for the xml type.
+        unwrapped = new QName(((TypeDefinition) unwrapped).getNamespace(),
+            "anonymous" + ((TypeDefinition) unwrapped).getSimpleName());
+      } else {
         unwrapped = ((TypeDefinition) unwrapped).getQname();
       }
     }
@@ -100,9 +103,10 @@ public class XmlFunctionIdentifierMethod implements TemplateMethodModelEx {
     if (unwrapped instanceof ElementDeclaration) {
       unwrapped = ((ElementDeclaration) unwrapped).getQname();
     }
-    
+
     if (!(unwrapped instanceof QName)) {
-      throw new TemplateModelException("The xmlFunctionIdentifier method must have a qname, type definition, or xml type as a parameter.");
+      throw new TemplateModelException(
+          "The xmlFunctionIdentifier method must have a qname, type definition, or xml type as a parameter.");
     }
 
     QName qname = (QName) unwrapped;
@@ -110,7 +114,7 @@ public class XmlFunctionIdentifierMethod implements TemplateMethodModelEx {
     if ("".equals(namespace)) {
       namespace = null;
     }
-    
+
     String prefix = this.ns2prefix.get(namespace);
     if (prefix == null) {
       prefix = "_";
@@ -122,8 +126,10 @@ public class XmlFunctionIdentifierMethod implements TemplateMethodModelEx {
       return null;
     }
     StringBuilder identifier = new StringBuilder();
-    identifier.append(Character.toLowerCase(prefix.charAt(0)));
-    identifier.append(prefix.substring(1));
+    if (prefix.length() > 0) {
+      identifier.append(Character.toLowerCase(prefix.charAt(0)));
+      identifier.append(prefix.substring(1));
+    }
     identifier.append(Character.toUpperCase(localName.charAt(0)));
     identifier.append(localName.substring(1));
     return CXMLClientModule.scrubIdentifier(identifier.toString());
