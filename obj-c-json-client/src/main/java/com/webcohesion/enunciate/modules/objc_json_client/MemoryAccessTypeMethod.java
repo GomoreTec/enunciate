@@ -49,8 +49,9 @@ public class MemoryAccessTypeMethod implements TemplateMethodModelEx {
       Accessor accessor = (Accessor) unwrapped;
       DecoratedTypeMirror accessorType = accessor.getAccessorType();
       if (accessor.isCollectionType()) {
-        memoryType = "retain";
-      } else if (accessorType.isPrimitive()) {
+        memoryType = "strong";
+      } else if (Util.isPrimitive(accessor)) {
+        // 在oc中BOOL也是原生类型。
         memoryType = "assign";
       } else if (accessorType.isEnum()) {
         memoryType = "copy";
@@ -58,11 +59,11 @@ public class MemoryAccessTypeMethod implements TemplateMethodModelEx {
         if (String.class.getName().equals(accessorType.toString())) {
           memoryType = "copy";
         } else {
-          memoryType = "retain";
+          memoryType = "strong";
         }
       }
     } else if (unwrapped instanceof AnyElement) {
-      memoryType = "retain";
+      memoryType = "strong";
     } else {
       throw new TemplateModelException(
           "The memoryAccessTypeFor method must have an accessor as a parameter.");

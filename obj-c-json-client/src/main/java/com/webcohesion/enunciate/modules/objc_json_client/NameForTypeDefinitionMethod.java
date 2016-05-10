@@ -54,10 +54,12 @@ public class NameForTypeDefinitionMethod implements TemplateMethodModelEx {
     if (name == null) {
       name = "anonymous_" + clientNameDecap;
     }
+    
     PackageElement pckg = typeDefinition.getPackage().getDelegate();
     String packageName = pckg == null ? "" : pckg.getQualifiedName().toString();
     String packageIdentifier = this.packages2ids.containsKey(packageName) ? ObjCJSONClientModule.scrubIdentifier(this.packages2ids.get(packageName)) : ObjCJSONClientModule.scrubIdentifier(packageName);
     String nsid = ObjCJSONClientModule.scrubIdentifier(namespaces2ids.get(typeDefinition.getNamespace()));
-    return String.format(this.pattern, this.projectLabel, nsid, name, clientName, clientNameDecap, simpleName, simpleNameDecap, packageIdentifier);
+//    return String.format(this.pattern, this.projectLabel, nsid, name, clientName, clientNameDecap, simpleName, simpleNameDecap, packageIdentifier);
+    return clientName;
   }
 }

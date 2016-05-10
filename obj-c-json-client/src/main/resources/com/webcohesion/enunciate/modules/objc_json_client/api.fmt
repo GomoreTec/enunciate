@@ -4,23 +4,18 @@
 [#-- @ftlvariable name="separateCommonCode" type="java.lang.Boolean" --]
 [#import "client-complex-type.fmt" as libComplexType/]
 [#import "client-enum-type.fmt" as libEnumType/]
-[#import "common.fmt" as libCommon/]
 [#if separateCommonCode!false]
-  [@file name=("enunciate-json-common.h") charset="utf-8"]
-    [@libCommon.writeCommonHeader /]
-  [/@file]
-  [@file name=("enunciate-json-common.m") charset="utf-8"]
-#import "enunciate-json-common.h"
-    [@libCommon.writeCommonImpl /]
-  [/@file]
+
+#import <Foundation/Foundation.h>
+#import "JSONModel.h"
+
 [/#if]
 
 [@file name=(objcBaseName + ".h") charset="utf-8"]
-  [#if separateCommonCode!false]
-#import "enunciate-json-common.h"
-  [#else]
-    [@libCommon.writeCommonHeader /]
-  [/#if]
+
+#import <Foundation/Foundation.h>
+#import "JSONModel.h"
+
   [#list schemaTypes as typeDefinition]
     [#if !isFacetExcluded(typeDefinition)]
       [#if typeDefinition.enum]
@@ -36,6 +31,14 @@
       [/#if]
     [/#if]
   [/#list]
+  
+    [#list schemaTypes as typeDefinition]
+    [#if !isFacetExcluded(typeDefinition)]
+      [#if !typeDefinition.enum]
+@protocol ${nameForTypeDefinition(typeDefinition)} @end
+      [/#if]
+    [/#if]
+  [/#list]
 
   [#list schemaTypes as typeDefinition]
     [#if !isFacetExcluded(typeDefinition)]
@@ -47,11 +50,9 @@
 [/@file]
 
 [@file name=(objcBaseName + ".m") charset="utf-8"]
+
 #import "${objcBaseName}.h"
-  [#if separateCommonCode!false]
-  [#else]
-    [@libCommon.writeCommonImpl /]
-  [/#if]
+
 [#list schemaTypes as typeDefinition]
   [#if !isFacetExcluded(typeDefinition)]
     [#if typeDefinition.enum]

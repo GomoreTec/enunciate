@@ -27,7 +27,8 @@ public class NameForEnumConstantMethod implements TemplateMethodModelEx {
   private final Map<String, String> namespaces2ids;
   private final Map<String, String> packages2ids;
 
-  public NameForEnumConstantMethod(String pattern, String projectLabel, Map<String, String> namespaces2ids, Map<String, String> packages2ids) {
+  public NameForEnumConstantMethod(String pattern, String projectLabel,
+      Map<String, String> namespaces2ids, Map<String, String> packages2ids) {
     this.pattern = pattern;
     this.packages2ids = packages2ids;
     this.projectLabel = ObjCJSONClientModule.scrubIdentifier(projectLabel);
@@ -36,33 +37,46 @@ public class NameForEnumConstantMethod implements TemplateMethodModelEx {
 
   public Object exec(List list) throws TemplateModelException {
     if (list.size() < 1) {
-      throw new TemplateModelException("The nameForEnumConstant method must have an enum type definition and an enum constant declaration as parameters.");
+      throw new TemplateModelException(
+          "The nameForEnumConstant method must have an enum type definition and an enum constant declaration as parameters.");
     }
 
-    BeansWrapper wrapper = new BeansWrapperBuilder(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS).build();
+    BeansWrapper wrapper = new BeansWrapperBuilder(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS)
+        .build();
     Object unwrapped = wrapper.unwrap((TemplateModel) list.get(0));
     if (!(unwrapped instanceof EnumValue)) {
-      throw new TemplateModelException("The nameForEnumConstant method must have an enum value as a parameter.");
+      throw new TemplateModelException(
+          "The nameForEnumConstant method must have an enum value as a parameter.");
     }
     EnumValue enumValue = (EnumValue) unwrapped;
     EnumTypeDefinition typeDefinition = enumValue.getTypeDefinition();
-    
+
     String name = ObjCJSONClientModule.scrubIdentifier(typeDefinition.getName());
-    String simpleName = ObjCJSONClientModule.scrubIdentifier(typeDefinition.getSimpleName().toString());
+    String simpleName = ObjCJSONClientModule
+        .scrubIdentifier(typeDefinition.getSimpleName().toString());
     String clientName = ObjCJSONClientModule.scrubIdentifier(typeDefinition.getClientSimpleName());
-    String simpleNameDecap = ObjCJSONClientModule.scrubIdentifier(Introspector.decapitalize(simpleName));
-    String clientNameDecap = ObjCJSONClientModule.scrubIdentifier(Introspector.decapitalize(clientName));
+    String simpleNameDecap = ObjCJSONClientModule
+        .scrubIdentifier(Introspector.decapitalize(simpleName));
+    String clientNameDecap = ObjCJSONClientModule
+        .scrubIdentifier(Introspector.decapitalize(clientName));
     if (name == null) {
       name = "anonymous_" + clientNameDecap;
     }
     PackageElement pckg = typeDefinition.getPackage().getDelegate();
     String packageName = pckg == null ? "" : pckg.getQualifiedName().toString();
-    String packageIdentifier = this.packages2ids.containsKey(packageName) ? ObjCJSONClientModule.scrubIdentifier(this.packages2ids.get(packageName)) : ObjCJSONClientModule.scrubIdentifier(packageName);
-    String nsid = ObjCJSONClientModule.scrubIdentifier(namespaces2ids.get(typeDefinition.getNamespace()));
+    String packageIdentifier = this.packages2ids.containsKey(packageName)
+        ? ObjCJSONClientModule.scrubIdentifier(this.packages2ids.get(packageName))
+        : ObjCJSONClientModule.scrubIdentifier(packageName);
+    String nsid = ObjCJSONClientModule
+        .scrubIdentifier(namespaces2ids.get(typeDefinition.getNamespace()));
 
-    String constantName = ObjCJSONClientModule.scrubIdentifier(enumValue.getSimpleName().toString());
-    String constantClientName = ObjCJSONClientModule.scrubIdentifier(enumValue.getAnnotation(ClientName.class) != null ? enumValue.getAnnotation(ClientName.class).value() : constantName);
-    return String.format(this.pattern, this.projectLabel, nsid, name, clientName, clientNameDecap, simpleName, simpleNameDecap, packageIdentifier, constantClientName, constantName);
+    String constantName = ObjCJSONClientModule
+        .scrubIdentifier(enumValue.getSimpleName().toString());
+    String constantClientName = ObjCJSONClientModule
+        .scrubIdentifier(enumValue.getAnnotation(ClientName.class) != null
+            ? enumValue.getAnnotation(ClientName.class).value() : constantName);
+    return String.format("%3$S_%9$S", this.projectLabel, nsid, name, clientName, clientNameDecap,
+        simpleName, simpleNameDecap, packageIdentifier, constantClientName, constantName);
   }
 
 }

@@ -7,13 +7,14 @@
 [#-- @ftlvariable name="output_element_name" type="java.lang.String" --]
 <p>
   The Objective C module generates the source code for the Objective C classes and (de)serialization
-  functions that can be used in conjunction with <a href="http://xmlsoft.org/">libxml2</a> to (de)serialize
-  the REST resources as they are represented as XML data.
+  functions that can be used in conjunction with <a href="https://github.com/elado/jastor">Jastor</a> to (de)serialize
+  the REST resources as they are represented as JSON data.
 </p>
 
 <p>
-  The generated Objective C source code depends on the <a href="http://xmlsoft.org/html/libxml-xmlreader.html">XML Reader API</a>
-  and the <a href="http://xmlsoft.org/html/libxml-xmlwriter.html">XML Writer API</a> as well as the base OpenStep foundation classes.
+Jastor is an Objective-C base class that is initialized with a dictionary (probably from your JSON response), and assigns dictionary values to all its (derived class's) typed @properties.
+It supports nested types, arrays, NSString, NSNumber, NSDate and more.Jastor is NOT a JSON parser. For that, you have JSONKit, yajl and many others.
+The name sounds like JSON to Objecter. Or something.
 </p>
 
 [#if output_element_name??]

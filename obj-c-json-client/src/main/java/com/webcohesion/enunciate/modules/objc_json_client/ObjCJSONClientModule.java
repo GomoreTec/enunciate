@@ -16,6 +16,27 @@
 
 package com.webcohesion.enunciate.modules.objc_json_client;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.IllegalFormatException;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
+import java.util.regex.Pattern;
+
+import org.apache.commons.configuration.HierarchicalConfiguration;
+
 import com.webcohesion.enunciate.EnunciateContext;
 import com.webcohesion.enunciate.EnunciateException;
 import com.webcohesion.enunciate.api.datatype.DataTypeReference;
@@ -27,7 +48,11 @@ import com.webcohesion.enunciate.artifacts.ArtifactType;
 import com.webcohesion.enunciate.artifacts.ClientLibraryArtifact;
 import com.webcohesion.enunciate.artifacts.FileArtifact;
 import com.webcohesion.enunciate.facets.FacetFilter;
-import com.webcohesion.enunciate.module.*;
+import com.webcohesion.enunciate.module.ApiFeatureProviderModule;
+import com.webcohesion.enunciate.module.ApiRegistryProviderModule;
+import com.webcohesion.enunciate.module.BasicGeneratingModule;
+import com.webcohesion.enunciate.module.DependencySpec;
+import com.webcohesion.enunciate.module.EnunciateModule;
 import com.webcohesion.enunciate.modules.jaxb.EnunciateJaxbContext;
 import com.webcohesion.enunciate.modules.jaxb.JaxbModule;
 import com.webcohesion.enunciate.modules.jaxb.api.impl.DataTypeReferenceImpl;
@@ -44,16 +69,13 @@ import com.webcohesion.enunciate.modules.jaxb.util.FindRootElementMethod;
 import com.webcohesion.enunciate.modules.jaxrs.JaxrsModule;
 import com.webcohesion.enunciate.util.freemarker.FileDirective;
 import com.webcohesion.enunciate.util.freemarker.IsFacetExcludedMethod;
+
 import freemarker.cache.URLTemplateLoader;
 import freemarker.core.Environment;
-import freemarker.template.*;
-import org.apache.commons.configuration.HierarchicalConfiguration;
-
-import java.io.*;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.*;
-import java.util.regex.Pattern;
+import freemarker.template.Configuration;
+import freemarker.template.Template;
+import freemarker.template.TemplateException;
+import freemarker.template.TemplateExceptionHandler;
 
 /**
  * @author Ryan Heaton
@@ -171,14 +193,15 @@ public class ObjCJSONClientModule extends BasicGeneratingModule
     Map<String, Object> model = new HashMap<String, Object>();
 
     String slug = getSlug();
+    final String objectBaseName = slug + "_objc_json_client";
 
     model.put("slug", slug);
 
     File srcDir = getSourceDir();
 
-    TreeMap<String, String> translations = new TreeMap<String, String>();
-    translations.put("id", getTranslateIdTo());
-    model.put("clientSimpleName", new ClientSimpleNameMethod(translations));
+    // TreeMap<String, String> translations = new TreeMap<String, String>();
+    // translations.put("id", getTranslateIdTo());
+    model.put("clientSimpleName", new ClientSimpleNameMethod());
 
     List<TypeDefinition> schemaTypes = new ArrayList<TypeDefinition>();
     ExtensionDepthComparator comparator = new ExtensionDepthComparator();
@@ -215,10 +238,12 @@ public class ObjCJSONClientModule extends BasicGeneratingModule
     ClientClassnameForMethod classnameFor = new ClientClassnameForMethod(conversions, jaxbContext);
     model.put("classnameFor", classnameFor);
     model.put("memoryAccessTypeFor", new MemoryAccessTypeMethod());
+    model.put("getFieldNameTransfer", new GetFieldNameTransferMethod());
+    model.put("isAccessorPrimitive", new IsAccessorPrimitiveMethod());
     model.put("getEnumVariablesFor", new GetEnumVariablesMethod(jaxbContext));
     model.put("functionIdentifierFor",
         new FunctionIdentifierForMethod(nameForTypeDefinition, jaxbContext));
-    model.put("objcBaseName", slug);
+    model.put("objcBaseName", objectBaseName);
     model.put("separateCommonCode", isSeparateCommonCode());
     model.put("findRootElement", new FindRootElementMethod(jaxbContext));
     model.put("referencedNamespaces", new ReferencedNamespacesMethod(jaxbContext));
@@ -251,37 +276,36 @@ public class ObjCJSONClientModule extends BasicGeneratingModule
     }
 
     ClientLibraryArtifact artifactBundle = new ClientLibraryArtifact(getName(),
-        "objc.client.library", "Objective C Client Library");
+        "objc.json.client.library", "Objective C JSON Client Library");
     FileArtifact sourceHeader = new FileArtifact(getName(), "objc.json.client.h",
-        new File(srcDir, slug + ".h"));
+        new File(srcDir, objectBaseName + ".h"));
     sourceHeader.setPublic(false);
     sourceHeader.setArtifactType(ArtifactType.sources);
     FileArtifact sourceImpl = new FileArtifact(getName(), "objc.json.client.m",
-        new File(srcDir, slug + ".m"));
+        new File(srcDir, objectBaseName + ".m"));
     sourceImpl.setPublic(false);
     sourceImpl.setArtifactType(ArtifactType.sources);
-    String description = readResource("library_description.fmt", model, nameForTypeDefinition); // read
-                                                                                                // in
-                                                                                                // the
-                                                                                                // description
-                                                                                                // from
-                                                                                                // file
+    String description = readResource("library_description.fmt", model, nameForTypeDefinition);
     artifactBundle.setDescription(description);
     artifactBundle.addArtifact(sourceHeader);
     artifactBundle.addArtifact(sourceImpl);
     if (isSeparateCommonCode()) {
-      FileArtifact commonSourceHeader = new FileArtifact(getName(), "objc.json.common.client.h",
-          new File(srcDir, "enunciate-json-common.h"));
-      commonSourceHeader.setPublic(false);
-      commonSourceHeader.setArtifactType(ArtifactType.sources);
-      commonSourceHeader.setDescription("Common header needed for all projects.");
-      FileArtifact commonSourceImpl = new FileArtifact(getName(), "objc.json.common.client.m",
-          new File(srcDir, "enunciate-json-common.m"));
-      commonSourceImpl.setPublic(false);
-      commonSourceImpl.setArtifactType(ArtifactType.sources);
-      commonSourceImpl.setDescription("Common implementation code needed for all projects.");
-      artifactBundle.addArtifact(commonSourceHeader);
-      artifactBundle.addArtifact(commonSourceImpl);
+      // FileArtifact commonSourceHeader = new FileArtifact(getName(),
+      // "objc.json.common.client.h",
+      // new File(srcDir, "enunciate-json-common.h"));
+      // commonSourceHeader.setPublic(false);
+      // commonSourceHeader.setArtifactType(ArtifactType.sources);
+      // commonSourceHeader.setDescription("Common header needed for all
+      // projects.");
+      // FileArtifact commonSourceImpl = new FileArtifact(getName(),
+      // "objc.json.common.client.m",
+      // new File(srcDir, "enunciate-json-common.m"));
+      // commonSourceImpl.setPublic(false);
+      // commonSourceImpl.setArtifactType(ArtifactType.sources);
+      // commonSourceImpl.setDescription("Common implementation code needed for
+      // all projects.");
+      // artifactBundle.addArtifact(commonSourceHeader);
+      // artifactBundle.addArtifact(commonSourceImpl);
     }
     this.enunciate.addArtifact(artifactBundle);
   }

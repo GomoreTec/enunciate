@@ -11,7 +11,7 @@
 /**
  * ${type.docComment!"(no documentation provided)"?chop_linebreak?replace("\n", "\n * ")}
  */
-@interface ${typeName} : [#if ((!type.baseObject) && (type.baseType.typeDefinition??))]${nameForTypeDefinition(type.baseType.typeDefinition)}[#else]Jastor[/#if]
+@interface ${typeName} : [#if ((!type.baseObject) && (type.baseType.typeDefinition??))]${nameForTypeDefinition(type.baseType.typeDefinition)}[#else]JSONModel[/#if]
 [#list type.attributes as attribute]
   [#if !isFacetExcluded(attribute)]
     [#if !accessorOverridesAnother(attribute)]
@@ -19,7 +19,7 @@
  * ${(attribute.javaDoc.return!attribute.docValue!"(no documentation provided)")?chop_linebreak?replace("\n", "\n * ")}
  * [#if attribute.collectionType]@see ${classnameFor(attribute.collectionItemType)}[/#if]
  */
-@property (nonatomic, copy) ${classnameFor(attribute)} [#if !attribute.accessorType.primitive]*[/#if]${clientSimpleName(attribute)};
+@property (nonatomic, copy) ${classnameFor(attribute)} [#if !isAccessorPrimitive(attribute)]*[/#if]${clientSimpleName(attribute)};
     [/#if]
   [/#if]
 [/#list]
@@ -30,7 +30,7 @@
  * ${(type.value.javaDoc.return!type.value.docValue!"(no documentation provided)")?chop_linebreak?replace("\n", "\n * ")}
  * [#if type.value.collectionType]@see ${classnameFor(type.value.collectionItemType)}[/#if]
  */
-@property (nonatomic, copy) ${classnameFor(type.value)} [#if !type.value.accessorType.primitive]*[/#if]${clientSimpleName(type.value)};
+@property (nonatomic, copy) ${classnameFor(type.value)} [#if !isAccessorPrimitive(type.value)]*[/#if]${clientSimpleName(type.value)};
     [/#if]
   [/#if]
 [#else]
@@ -42,7 +42,7 @@
  * [#if element.collectionType]@see ${classnameFor(element.collectionItemType)}[/#if]
  * [#if element.accessorType.enum]取值: [#list getEnumVariablesFor(element) as enumValue][#if !isFacetExcluded(enumValue)]${nameForEnumConstant(enumValue)}, [/#if][/#list][/#if]
  */
-@property (nonatomic, ${memoryAccessTypeFor(element)}) ${classnameFor(element)} [#if !element.accessorType.primitive]*[/#if]${clientSimpleName(element)};
+@property (nonatomic, ${memoryAccessTypeFor(element)}) ${classnameFor(element)}[#if element.collectionType && !isAccessorPrimitive(element)]<${classnameFor(element.collectionItemType)}>[/#if] [#if !isAccessorPrimitive(element)]*[/#if]${clientSimpleName(element)};
       [/#if]
     [/#if]
   [/#list]
@@ -53,7 +53,7 @@
  *
  * Contains instances of JAXBBasicXMLNode.
  */
-@property (nonatomic, retain) NSArray *${clientSimpleName(type.anyElement)};
+@property (nonatomic, strong) NSArray *${clientSimpleName(type.anyElement)};
 [/#if]
 [#if type.hasAnyAttribute]
 /**
@@ -65,7 +65,7 @@
  * See ${classnameFor(type.anyAttributeQNameEnumRef)} for an enumeration of known attributes.
  [/#if]
  */
-@property (nonatomic, retain) NSArray *otherAttributes;
+@property (nonatomic, strong) NSArray *otherAttributes;
 [/#if]
 @end /* interface ${typeName} */
 
@@ -112,18 +112,26 @@
   return _otherAttributes;
 }
 [/#if]
-[#list type.elements as element]
-    [#if !isFacetExcluded(element)]
-      [#if !accessorOverridesAnother(element)]
-      	[#if element.collectionType]
-      	
-+ (Class)${clientSimpleName(element)}_class {
-    return [${classnameFor(element.collectionItemType)} class];
+
++(BOOL)propertyIsOptional:(NSString*)propertyName
+{
+  return YES;
 }
-		[/#if]
-      [/#if]
-    [/#if]
-[/#list]
+
+[#assign nameMappings=getFieldNameTransfer(type)/]
+[#if nameMappings??&&nameMappings?size gt 0]
+
++(JSONKeyMapper*)keyMapper
+{
+  return [[JSONKeyMapper alloc] initWithDictionary:@{
+[#list nameMappings?keys as key]
+    @"${key}": @"${nameMappings[key]}",
+[/#list] 
+  }];
+}
+
+[/#if]
+
 @end
 
 [/#macro]

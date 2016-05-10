@@ -16,56 +16,50 @@
 
 package com.webcohesion.enunciate.modules.objc_json_client;
 
+import java.util.List;
+
 import com.webcohesion.enunciate.modules.jaxb.model.Accessor;
 import com.webcohesion.enunciate.modules.jaxb.model.AnyElement;
+
 import freemarker.ext.beans.BeansWrapper;
 import freemarker.template.TemplateMethodModelEx;
 import freemarker.template.TemplateModel;
 import freemarker.template.TemplateModelException;
 
-import java.util.List;
-import java.util.Map;
-
 /**
- * Template method used to determine the objective-c "simple name" of an
- * accessor.
+ * is primitive accessor type for element
  *
- * @author Ryan Heaton
+ * @author Debenson
  */
-public class ClientSimpleNameMethod implements TemplateMethodModelEx {
+public class IsAccessorPrimitiveMethod implements TemplateMethodModelEx {
 
-  public ClientSimpleNameMethod() {
-  }
-
+  @SuppressWarnings({
+      "deprecation", "rawtypes" })
   public Object exec(List list) throws TemplateModelException {
     if (list.size() < 1) {
       throw new TemplateModelException(
-          "The functionIdentifierFor method must have an accessor or type mirror as a parameter.");
+          "The function IsAccessorPrimitiveMethod must have an element as a parameter.");
     }
 
     TemplateModel from = (TemplateModel) list.get(0);
     Object unwrapped = BeansWrapper.getDefaultInstance().unwrap(from);
-    String name;
     if (unwrapped instanceof Accessor) {
       Accessor accessor = (Accessor) unwrapped;
-      name = accessor.getClientSimpleName();
-      // if (this.clientNames.containsKey(name)) {
-      // name = this.clientNames.get(name);
+      // DecoratedTypeMirror accessorType = accessor.getAccessorType();
+      // String accessorTypeStr = accessorType.toString();
+      // if (accessorType.isPrimitive() ||
+      // Boolean.class.getName().equals(accessorTypeStr)
+      // || Short.class.getName().equals(accessorTypeStr)) {
+      // return true;
+      // } else {
+      // return false;
       // }
-      name = FieldNameTransfer.transfer(name);
+      return Util.isPrimitive(accessor);
+
     } else if (unwrapped instanceof AnyElement) {
-      AnyElement accessor = (AnyElement) unwrapped;
-      name = accessor.getClientSimpleName();
-      name = FieldNameTransfer.transfer(name);
-      // if (this.clientNames.containsKey(name)) {
-      // name = this.clientNames.get(name);
-      // }
+      return false;
     } else {
-      throw new TemplateModelException(
-          "The clientSimpleName method must have an accessor as a parameter.");
+      return false;
     }
-
-    return name;
   }
-
 }

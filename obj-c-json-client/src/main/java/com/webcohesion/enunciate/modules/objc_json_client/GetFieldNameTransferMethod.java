@@ -16,15 +16,18 @@
 
 package com.webcohesion.enunciate.modules.objc_json_client;
 
-import com.webcohesion.enunciate.modules.jaxb.model.Accessor;
-import com.webcohesion.enunciate.modules.jaxb.model.AnyElement;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.google.common.base.Objects;
+import com.webcohesion.enunciate.modules.jaxb.model.ComplexTypeDefinition;
+import com.webcohesion.enunciate.modules.jaxb.model.Element;
+
 import freemarker.ext.beans.BeansWrapper;
 import freemarker.template.TemplateMethodModelEx;
 import freemarker.template.TemplateModel;
 import freemarker.template.TemplateModelException;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * Template method used to determine the objective-c "simple name" of an
@@ -32,9 +35,9 @@ import java.util.Map;
  *
  * @author Ryan Heaton
  */
-public class ClientSimpleNameMethod implements TemplateMethodModelEx {
+public class GetFieldNameTransferMethod implements TemplateMethodModelEx {
 
-  public ClientSimpleNameMethod() {
+  public GetFieldNameTransferMethod() {
   }
 
   public Object exec(List list) throws TemplateModelException {
@@ -43,29 +46,20 @@ public class ClientSimpleNameMethod implements TemplateMethodModelEx {
           "The functionIdentifierFor method must have an accessor or type mirror as a parameter.");
     }
 
+    Map<String, String> nameMapping = new HashMap<String, String>();
     TemplateModel from = (TemplateModel) list.get(0);
     Object unwrapped = BeansWrapper.getDefaultInstance().unwrap(from);
-    String name;
-    if (unwrapped instanceof Accessor) {
-      Accessor accessor = (Accessor) unwrapped;
-      name = accessor.getClientSimpleName();
-      // if (this.clientNames.containsKey(name)) {
-      // name = this.clientNames.get(name);
-      // }
-      name = FieldNameTransfer.transfer(name);
-    } else if (unwrapped instanceof AnyElement) {
-      AnyElement accessor = (AnyElement) unwrapped;
-      name = accessor.getClientSimpleName();
-      name = FieldNameTransfer.transfer(name);
-      // if (this.clientNames.containsKey(name)) {
-      // name = this.clientNames.get(name);
-      // }
-    } else {
-      throw new TemplateModelException(
-          "The clientSimpleName method must have an accessor as a parameter.");
+    if (unwrapped instanceof ComplexTypeDefinition) {
+      ComplexTypeDefinition type = (ComplexTypeDefinition) unwrapped;
+      for (Element ele : type.getElements()) {
+        String name = ele.getClientSimpleName();
+        String transferName = FieldNameTransfer.transfer(name);
+        if (!Objects.equal(name, transferName)) {
+          nameMapping.put(name, transferName);
+        }
+      }
     }
-
-    return name;
+    return nameMapping;
   }
 
 }
