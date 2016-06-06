@@ -56,7 +56,7 @@ public class MemoryAccessTypeMethod implements TemplateMethodModelEx {
       } else if (accessorType.isEnum()) {
         memoryType = "copy";
       } else {
-        if (String.class.getName().equals(accessorType.toString())) {
+        if (Util.isCopyType(accessorType)) {
           memoryType = "copy";
         } else {
           memoryType = "strong";

@@ -9,7 +9,9 @@
  */
 package com.webcohesion.enunciate.modules.objc_json_client;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import com.webcohesion.enunciate.javac.decorations.type.DecoratedTypeMirror;
@@ -21,11 +23,18 @@ import com.webcohesion.enunciate.modules.jaxb.model.Accessor;
  */
 public class Util {
   private static final List<String> extPrimitives = new ArrayList<String>();
+  private static final List<String> extCopyTypes = new ArrayList<String>();
 
   static {
     extPrimitives.add(Boolean.class.getName());
     extPrimitives.add(Short.class.getName());
     extPrimitives.add(Integer.class.getName());
+    extPrimitives.add(Double.class.getName());
+    extPrimitives.add(Float.class.getName());
+
+    extCopyTypes.add(String.class.getName());
+    extCopyTypes.add(Date.class.getName());
+    extCopyTypes.add(Timestamp.class.getName());
   }
 
   public static boolean isPrimitive(Accessor accessor) {
@@ -36,6 +45,10 @@ public class Util {
     } else {
       return false;
     }
+  }
+
+  public static boolean isCopyType(DecoratedTypeMirror<?> accessorType) {
+    return extCopyTypes.contains(accessorType.toString());
   }
 
 }

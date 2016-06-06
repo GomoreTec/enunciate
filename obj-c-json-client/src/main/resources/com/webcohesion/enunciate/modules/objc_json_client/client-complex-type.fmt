@@ -4,9 +4,11 @@
 [#macro writeComplexTypeHeader type]
   [#-- @ftlvariable name="type" type="com.webcohesion.enunciate.modules.jaxb.model.ComplexTypeDefinition" --]
   [#assign typeName=nameForTypeDefinition(type)/]
-  
+
+[#-- 
 #ifndef DEF_${typeName}_H
 #define DEF_${typeName}_H
+--]
 
 /**
  * ${type.docComment!"(no documentation provided)"?chop_linebreak?replace("\n", "\n * ")}
@@ -69,7 +71,9 @@
 [/#if]
 @end /* interface ${typeName} */
 
+[#--
 #endif
+--]
 
 [/#macro]
 

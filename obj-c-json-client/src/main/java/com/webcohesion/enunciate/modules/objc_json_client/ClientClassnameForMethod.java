@@ -65,8 +65,8 @@ public class ClientClassnameForMethod extends com.webcohesion.enunciate.util.fre
     classConversions.put(java.math.BigDecimal.class.getName(), "NSDecimalNumber");
     classConversions.put(Float.class.getName(), "float");
     classConversions.put(Character.class.getName(), "unsigned short");
-    classConversions.put(Date.class.getName(), "NSDate");
-    classConversions.put(Timestamp.class.getName(), "NSDate");
+    classConversions.put(Date.class.getName(), "NSString");
+    classConversions.put(Timestamp.class.getName(), "NSString");
     classConversions.put(DataHandler.class.getName(), "NSData");
     classConversions.put(java.awt.Image.class.getName(), "NSData");
     classConversions.put(javax.xml.transform.Source.class.getName(), "NSData");

@@ -3,8 +3,10 @@
 [#macro writeEnumTypeHeader type]
   [#-- @ftlvariable name="type" type="com.webcohesion.enunciate.modules.jaxb.model.EnumTypeDefinition" --]
   [#assign typeName=nameForTypeDefinition(type)/]
+[#--
 #ifndef DEF_${typeName}_H
 #define DEF_${typeName}_H
+--]
 
 /**
  * ${(type.docComment!"(no documentation provided)")?chop_linebreak?replace("\n", "\n * ")}
@@ -18,18 +20,26 @@ extern NSString * const ${nameForEnumConstant(enumValue)};
   [/#if]
 [/#list]
 
+[#--
 #endif /* DEF_${typeName}_H */
+--]
+
 
 [/#macro]
 [#macro writeEnumTypeImpl type]
   [#assign typeName=nameForTypeDefinition(type)/]
+[#--
 #ifndef DEF_${typeName}_M
 #define DEF_${typeName}_M
+--]
 [#list type.getEnumValues() as enumValue]
   [#if !isFacetExcluded(enumValue)]
 NSString * const ${nameForEnumConstant(enumValue)} = @"${enumValue.value}";
   [/#if]
 [/#list]
+
+[#--
 #endif /* DEF_${typeName}_M */
+--]
 
 [/#macro]
