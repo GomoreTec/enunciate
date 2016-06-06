@@ -15,7 +15,8 @@
   [#if currentClass == "String" || currentClass == "Integer" || currentClass == "Boolean" || currentClass == "Array"]
 ${indent}${newIdentifier} = ${currentIdentifier};
   [#elseif currentClass == "Object"]
-${indent}${newIdentifier} = (array) ${currentIdentifier};
+[#-- ${indent}${newIdentifier} = (array) ${currentIdentifier}; --]
+${indent}${newIdentifier} = ${currentIdentifier};
   [#else]
 ${indent}${newIdentifier} = ${currentIdentifier}->toArray();
   [/#if]
