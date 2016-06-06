@@ -400,11 +400,12 @@ public class EnunciateJaxbContext extends EnunciateModuleContext implements Synt
    * @return The prefix that was generated.
    */
   protected String generatePrefix(String namespace) {
-    String prefix = "ns" + (prefixIndex++);
-    while (this.namespacePrefixes.values().contains(prefix)) {
-      prefix = "ns" + (prefixIndex++);
-    }
-    return prefix;
+//    String prefix = "ns" + (prefixIndex++);
+//    while (this.namespacePrefixes.values().contains(prefix)) {
+//      prefix = "ns" + (prefixIndex++);
+//    }
+//    return prefix;
+    return "";
   }
 
   /**
