@@ -60,7 +60,7 @@
     <module>maven-plugin</module>
     <module>simple-archetype</module>
 
-    <module>examples</module>
+    <!-- <module>examples</module> -->
   </modules>
 
   <properties>

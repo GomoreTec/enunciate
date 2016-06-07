@@ -56,7 +56,7 @@ public class ClientClassnameForMethod extends com.webcohesion.enunciate.util.fre
 
     classConversions.put(Boolean.class.getName(), "BOOL");
     classConversions.put(String.class.getName(), "NSString");
-    classConversions.put(Integer.class.getName(), "int");
+    classConversions.put(Integer.class.getName(), "NSInteger");
     classConversions.put(Short.class.getName(), "short");
     classConversions.put(Byte.class.getName(), "unsigned char");
     classConversions.put(Double.class.getName(), "double");
@@ -140,7 +140,8 @@ public class ClientClassnameForMethod extends com.webcohesion.enunciate.util.fre
         case BYTE:
           return "unsigned char";
         case INT:
-          return "int";
+//          return "int";
+          return "NSInteger";
         case SHORT:
           return "short";
         case FLOAT:

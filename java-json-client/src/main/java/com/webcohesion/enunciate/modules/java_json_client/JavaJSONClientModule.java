@@ -58,6 +58,7 @@ import javax.tools.JavaFileObject;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.*;
 
 /**
@@ -349,7 +350,7 @@ public class JavaJSONClientModule extends BasicGeneratingModule implements ApiFe
           String classpath = this.enunciate.writeClasspath(enunciate.getClasspath());
           JavaCompiler compiler = JavacTool.create();
           List<String> options = Arrays.asList("-source", getJavacSource(), "-target", getJavacTarget(), "-encoding", "UTF-8", "-cp", classpath, "-d", compileDir.getAbsolutePath(), "-nowarn");
-          JavaCompiler.CompilationTask task = compiler.getTask(null, null, null, options, null, compiler.getStandardFileManager(null, null, null).getJavaFileObjectsFromFiles(sources));
+          JavaCompiler.CompilationTask task = compiler.getTask(null, null, null, options, null, compiler.getStandardFileManager(null, null, Charset.forName("UTF-8")).getJavaFileObjectsFromFiles(sources));
           if (!task.call()) {
             throw new EnunciateException("Compile failed of Java JSON client-side classes.");
           }

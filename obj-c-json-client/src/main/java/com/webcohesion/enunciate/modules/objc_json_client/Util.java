@@ -31,6 +31,7 @@ public class Util {
     extPrimitives.add(Integer.class.getName());
     extPrimitives.add(Double.class.getName());
     extPrimitives.add(Float.class.getName());
+    extPrimitives.add(Long.class.getName());
 
     extCopyTypes.add(String.class.getName());
     extCopyTypes.add(Date.class.getName());
